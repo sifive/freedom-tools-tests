@@ -150,4 +150,4 @@ endif
 # Targets that don't build anything
 .PHONY: clean
 clean::
-	rm -rf $(OBJDIR) $(BINDIR)
+	rm -rf $(OBJDIR)
