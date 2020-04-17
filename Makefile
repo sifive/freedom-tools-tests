@@ -46,7 +46,6 @@ xc3sprog: redhat-xc3sprog
 trace-decoder: redhat-trace-decoder
 sdk-utilities: redhat-sdk-utilities
 else ifeq ($(DISTRIB_ID),Ubuntu)
-ifeq ($(shell uname -m),x86_64)
 NATIVE ?= $(UBUNTU64)
 all: ubuntu64
 non-toolchain: ubuntu64-non-toolchain
@@ -57,21 +56,15 @@ qemu: ubuntu64-qemu
 xc3sprog: ubuntu64-xc3sprog
 trace-decoder: ubuntu64-trace-decoder
 sdk-utilities: ubuntu64-sdk-utilities
-else
-NATIVE ?= $(UBUNTU32)
-all: ubuntu32
-toolchain: ubuntu32-toolchain
-openocd: ubuntu32-openocd
-endif
-all: win64
-non-toolchain: win64-non-toolchain
-toolchain: win64-toolchain
-gdb-only: win64-gdb-only
-openocd: win64-openocd
-qemu: win64-qemu
-xc3sprog: win64-xc3sprog
-trace-decoder: win64-trace-decoder
-sdk-utilities: win64-sdk-utilities
+#all: win64
+#non-toolchain: win64-non-toolchain
+#toolchain: win64-toolchain
+#gdb-only: win64-gdb-only
+#openocd: win64-openocd
+#qemu: win64-qemu
+#xc3sprog: win64-xc3sprog
+#trace-decoder: win64-trace-decoder
+#sdk-utilities: win64-sdk-utilities
 else ifeq ($(shell uname),Darwin)
 NATIVE ?= $(DARWIN)
 LIBTOOLIZE ?= glibtoolize
@@ -111,16 +104,15 @@ SRC_FTCT     := $(SRCDIR)/freedom-toolchain-tests
 .PHONY: win64 win64-non-toolchain win64-toolchain win64-gdb-only win64-openocd win64-qemu win64-xc3sprog win64-trace-decoder win64-sdk-utilities
 win64: win64-toolchain win64-openocd win64-qemu win64-xc3sprog win64-trace-decoder win64-sdk-utilities
 win64-non-toolchain: win64-openocd win64-qemu win64-xc3sprog win64-trace-decoder win64-sdk-utilities
-.PHONY: win32 win32-openocd win32-toolchain
-win32: win32-openocd win32-toolchain
+win64-toolchain: $(OBJDIR)/stamps/freedom-toolchain-tests.test
 .PHONY: ubuntu64 ubuntu64-non-toolchain ubuntu64-toolchain ubuntu64-gdb-only ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities
 ubuntu64: ubuntu64-toolchain ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities
 ubuntu64-non-toolchain: ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities
-.PHONY: ubuntu32 ubuntu32-toolchain ubuntu32-openocd
-ubuntu32: ubuntu32-toolchain ubuntu32-openocd
+ubuntu64-toolchain: $(OBJDIR)/stamps/freedom-toolchain-tests.test
 .PHONY: redhat redhat-non-toolchain redhat-toolchain redhat-gdb-only redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities
 redhat: redhat-toolchain redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities
 redhat-non-toolchain: redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities
+redhat-toolchain: $(OBJDIR)/stamps/freedom-toolchain-tests.test
 .PHONY: darwin darwin-non-toolchain darwin-toolchain darwin-gdb-only darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities
 darwin: darwin-toolchain darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities
 darwin-non-toolchain: darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities
