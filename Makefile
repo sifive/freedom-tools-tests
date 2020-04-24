@@ -21,6 +21,7 @@ SHELL = /bin/bash
 PREFIXPATH ?=
 BINDIR := bin
 OBJDIR := obj
+PKGDIR ?= $(OBJDIR)
 SRCDIR := $(PREFIXPATH)src
 SCRIPTSDIR := $(PREFIXPATH)scripts
 
@@ -131,9 +132,9 @@ toolchain_tarname = $(basename $(basename $(notdir $(toolchain_tarball))))
 $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install: \
 		$(toolchain_tarball)
 	mkdir -p $(dir $@)
-	rm -rf $(OBJDIR)/install
-	mkdir -p $(OBJDIR)/install
-	$(TAR) -xz -C $(OBJDIR)/install -f $(toolchain_tarball)
+	rm -rf $(PKGDIR)/install/$(toolchain_tarname)
+	mkdir -p $(PKGDIR)/install
+	$(TAR) -xz -C $(PKGDIR)/install -f $(toolchain_tarball)
 	date > $@
 
 $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test: \
@@ -142,7 +143,7 @@ $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test: \
 	rm -rf $(OBJDIR)/test/freedom-toolchain-tests
 	mkdir -p $(OBJDIR)/test
 	cp -a $(SRC_FTCT) $(OBJDIR)/test
-	PATH=$(abspath $(OBJDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C $(OBJDIR)/test/freedom-toolchain-tests SED=$(SED)
+	PATH=$(abspath $(PKGDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C $(OBJDIR)/test/freedom-toolchain-tests SED=$(SED)
 	date > $@
 else
 $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test:
