@@ -72,6 +72,7 @@ xc3sprog: darwin-xc3sprog
 trace-decoder: darwin-trace-decoder
 sdk-utilities: darwin-sdk-utilities
 else ifneq ($(wildcard /mingw64/etc),)
+NATIVE ?= $(WIN64)
 all: win64
 non-toolchain: win64-non-toolchain
 toolchain: win64-toolchain
@@ -144,35 +145,35 @@ $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test: \
 	PATH=$(abspath $(OBJDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C $(OBJDIR)/test/freedom-toolchain-tests SED=$(SED)
 	date > $@
 else
-$(OBJDIR)/stamps/freedom-toolchain-tests.test:
+$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test:
 	$(error No riscv64-unknown-elf-gcc $(NATIVE) tarball available for toolchain testing!)
 endif
 
 # Tests riscv-openocd.
-toolchain_tarball = $(wildcard $(BINDIR)/riscv64-unknown-elf-gcc-*-$(NATIVE).tar.gz)
-ifneq ($(toolchain_tarball),)
-toolchain_tarname = $(basename $(basename $(notdir $(toolchain_tarball))))
-
-$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install: \
-		$(toolchain_tarball)
-	mkdir -p $(dir $@)
-	rm -rf $(OBJDIR)/install
-	mkdir -p $(OBJDIR)/install
-	$(TAR) -xz -C $(OBJDIR)/install -f $(toolchain_tarball)
-	date > $@
-
-$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test: \
-		$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install
-	mkdir -p $(dir $@)
-	rm -rf $(OBJDIR)/test/freedom-toolchain-tests
-	mkdir -p $(OBJDIR)/test
-	cp -a $(SRC_FTCT) $(OBJDIR)/test
-	PATH=$(abspath $(OBJDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C $(OBJDIR)/test/freedom-toolchain-tests SED=$(SED)
-	date > $@
-else
-$(OBJDIR)/stamps/freedom-toolchain-tests.test:
-	$(error No riscv64-unknown-elf-gcc $(NATIVE) tarball available for toolchain testing!)
-endif
+#toolchain_tarball = $(wildcard $(BINDIR)/riscv64-unknown-elf-gcc-*-$(NATIVE).tar.gz)
+#ifneq ($(toolchain_tarball),)
+#toolchain_tarname = $(basename $(basename $(notdir $(toolchain_tarball))))
+#
+#$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install: \
+#		$(toolchain_tarball)
+#	mkdir -p $(dir $@)
+#	rm -rf $(OBJDIR)/install
+#	mkdir -p $(OBJDIR)/install
+#	$(TAR) -xz -C $(OBJDIR)/install -f $(toolchain_tarball)
+#	date > $@
+#
+#$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test: \
+#		$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install
+#	mkdir -p $(dir $@)
+#	rm -rf $(OBJDIR)/test/freedom-toolchain-tests
+#	mkdir -p $(OBJDIR)/test
+#	cp -a $(SRC_FTCT) $(OBJDIR)/test
+#	PATH=$(abspath $(OBJDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C $(OBJDIR)/test/freedom-toolchain-tests SED=$(SED)
+#	date > $@
+#else
+#$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test:
+#	$(error No riscv64-unknown-elf-gcc $(NATIVE) tarball available for toolchain testing!)
+#endif
 
 # Targets that don't build anything
 .PHONY: clean
