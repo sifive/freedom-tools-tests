@@ -56,15 +56,6 @@ qemu: ubuntu64-qemu
 xc3sprog: ubuntu64-xc3sprog
 trace-decoder: ubuntu64-trace-decoder
 sdk-utilities: ubuntu64-sdk-utilities
-#all: win64
-#non-toolchain: win64-non-toolchain
-#toolchain: win64-toolchain
-#gdb-only: win64-gdb-only
-#openocd: win64-openocd
-#qemu: win64-qemu
-#xc3sprog: win64-xc3sprog
-#trace-decoder: win64-trace-decoder
-#sdk-utilities: win64-sdk-utilities
 else ifeq ($(shell uname),Darwin)
 NATIVE ?= $(DARWIN)
 LIBTOOLIZE ?= glibtoolize
@@ -80,6 +71,16 @@ qemu: darwin-qemu
 xc3sprog: darwin-xc3sprog
 trace-decoder: darwin-trace-decoder
 sdk-utilities: darwin-sdk-utilities
+else ifneq ($(wildcard /mingw64/etc),)
+all: win64
+non-toolchain: win64-non-toolchain
+toolchain: win64-toolchain
+gdb-only: win64-gdb-only
+openocd: win64-openocd
+qemu: win64-qemu
+xc3sprog: win64-xc3sprog
+trace-decoder: win64-trace-decoder
+sdk-utilities: win64-sdk-utilities
 else
 $(error Unknown host)
 endif
@@ -104,25 +105,25 @@ SRC_FTCT     := $(SRCDIR)/freedom-toolchain-tests
 .PHONY: win64 win64-non-toolchain win64-toolchain win64-gdb-only win64-openocd win64-qemu win64-xc3sprog win64-trace-decoder win64-sdk-utilities
 win64: win64-toolchain win64-openocd win64-qemu win64-xc3sprog win64-trace-decoder win64-sdk-utilities
 win64-non-toolchain: win64-openocd win64-qemu win64-xc3sprog win64-trace-decoder win64-sdk-utilities
-win64-toolchain: $(OBJDIR)/stamps/freedom-toolchain-tests.test
+win64-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
 .PHONY: ubuntu64 ubuntu64-non-toolchain ubuntu64-toolchain ubuntu64-gdb-only ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities
 ubuntu64: ubuntu64-toolchain ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities
 ubuntu64-non-toolchain: ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities
-ubuntu64-toolchain: $(OBJDIR)/stamps/freedom-toolchain-tests.test
+ubuntu64-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
 .PHONY: redhat redhat-non-toolchain redhat-toolchain redhat-gdb-only redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities
 redhat: redhat-toolchain redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities
 redhat-non-toolchain: redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities
-redhat-toolchain: $(OBJDIR)/stamps/freedom-toolchain-tests.test
+redhat-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
 .PHONY: darwin darwin-non-toolchain darwin-toolchain darwin-gdb-only darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities
 darwin: darwin-toolchain darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities
 darwin-non-toolchain: darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities
-darwin-toolchain: $(OBJDIR)/stamps/freedom-toolchain-tests.test
+darwin-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
 
 # There's enough % rules that make starts blowing intermediate files away.
 .SECONDARY:
 
-# Tests riscv-gnu-toolchain for various targets.
-toolchain_tarball = $(wildcard $(BINDIR)/riscv64-unknown-elf-gcc-*.tar.gz)
+# Tests riscv-gnu-toolchain.
+toolchain_tarball = $(wildcard $(BINDIR)/riscv64-unknown-elf-gcc-*-$(NATIVE).tar.gz)
 ifneq ($(toolchain_tarball),)
 toolchain_tarname = $(basename $(basename $(notdir $(toolchain_tarball))))
 
@@ -134,7 +135,7 @@ $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install: \
 	$(TAR) -xz -C $(OBJDIR)/install -f $(toolchain_tarball)
 	date > $@
 
-$(OBJDIR)/stamps/freedom-toolchain-tests.test: \
+$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test: \
 		$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install
 	mkdir -p $(dir $@)
 	rm -rf $(OBJDIR)/test/freedom-toolchain-tests
@@ -144,7 +145,33 @@ $(OBJDIR)/stamps/freedom-toolchain-tests.test: \
 	date > $@
 else
 $(OBJDIR)/stamps/freedom-toolchain-tests.test:
-	$(error No riscv64-unknown-elf-gcc tarball available for toolchain testing!)
+	$(error No riscv64-unknown-elf-gcc $(NATIVE) tarball available for toolchain testing!)
+endif
+
+# Tests riscv-openocd.
+toolchain_tarball = $(wildcard $(BINDIR)/riscv64-unknown-elf-gcc-*-$(NATIVE).tar.gz)
+ifneq ($(toolchain_tarball),)
+toolchain_tarname = $(basename $(basename $(notdir $(toolchain_tarball))))
+
+$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install: \
+		$(toolchain_tarball)
+	mkdir -p $(dir $@)
+	rm -rf $(OBJDIR)/install
+	mkdir -p $(OBJDIR)/install
+	$(TAR) -xz -C $(OBJDIR)/install -f $(toolchain_tarball)
+	date > $@
+
+$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test: \
+		$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install
+	mkdir -p $(dir $@)
+	rm -rf $(OBJDIR)/test/freedom-toolchain-tests
+	mkdir -p $(OBJDIR)/test
+	cp -a $(SRC_FTCT) $(OBJDIR)/test
+	PATH=$(abspath $(OBJDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C $(OBJDIR)/test/freedom-toolchain-tests SED=$(SED)
+	date > $@
+else
+$(OBJDIR)/stamps/freedom-toolchain-tests.test:
+	$(error No riscv64-unknown-elf-gcc $(NATIVE) tarball available for toolchain testing!)
 endif
 
 # Targets that don't build anything
