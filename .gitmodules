@@ -1,3 +1,6 @@
 [submodule "src/freedom-toolchain-tests"]
 	path = src/freedom-toolchain-tests
 	url = git://github.com/sifive/freedom-toolchain-tests.git
+[submodule "src/freedom-e-sdk"]
+	path = src/freedom-e-sdk
+	url = git@github.com:sifive/freedom-e-sdk.git
