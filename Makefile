@@ -166,11 +166,17 @@ $(OBJDIR)/stamps/freedom-e-sdk.test: \
 		$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install
 	mkdir -p $(dir $@)
 	rm -rf $(OBJDIR)/test/freedom-e-sdk
-	rm -rf $(OBJDIR)/test/freedom-e-sdk-standalone
 	mkdir -p $(OBJDIR)/test
 	cp -a $(SRC_FESDK) $(OBJDIR)/test
+	rm -rf $(OBJDIR)/test/freedom-e-sdk-standalone
 	PATH=$(abspath $(PKGDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
 		$(OBJDIR)/test/freedom-e-sdk PROGRAM=hello TARGET=qemu-sifive-e31 \
+		STANDALONE_DEST=$(abspath $(OBJDIR)/test/freedom-e-sdk-standalone) standalone
+	PATH=$(abspath $(PKGDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
+		$(OBJDIR)/test/freedom-e-sdk-standalone software
+	rm -rf $(OBJDIR)/test/freedom-e-sdk-standalone
+	PATH=$(abspath $(PKGDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
+		$(OBJDIR)/test/freedom-e-sdk PROGRAM=example-freertos-minimal TARGET=qemu-sifive-e31 \
 		STANDALONE_DEST=$(abspath $(OBJDIR)/test/freedom-e-sdk-standalone) standalone
 	PATH=$(abspath $(PKGDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
 		$(OBJDIR)/test/freedom-e-sdk-standalone software
