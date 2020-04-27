@@ -21,8 +21,7 @@ SHELL = /bin/bash
 
 PREFIXPATH ?=
 BINDIR := bin
-OBJDIR := obj
-PKGDIR ?= $(OBJDIR)
+OBJDIR ?= obj
 SRCDIR := $(PREFIXPATH)src
 SCRIPTSDIR := $(PREFIXPATH)scripts
 
@@ -142,9 +141,9 @@ toolchain_tarname = $(basename $(basename $(notdir $(toolchain_tarball))))
 $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install: \
 		$(toolchain_tarball)
 	mkdir -p $(dir $@)
-	rm -rf $(PKGDIR)/install/$(toolchain_tarname)
-	mkdir -p $(PKGDIR)/install
-	$(TAR) -xz -C $(PKGDIR)/install -f $(toolchain_tarball)
+	rm -rf $(OBJDIR)/install/$(toolchain_tarname)
+	mkdir -p $(OBJDIR)/install
+	$(TAR) -xz -C $(OBJDIR)/install -f $(toolchain_tarball)
 	date > $@
 else
 $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install: \
@@ -158,7 +157,7 @@ $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test: \
 	rm -rf $(OBJDIR)/test/freedom-toolchain-tests
 	mkdir -p $(OBJDIR)/test
 	cp -a $(SRC_FTCT) $(OBJDIR)/test
-	PATH=$(abspath $(PKGDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C $(OBJDIR)/test/freedom-toolchain-tests SED=$(SED)
+	PATH=$(abspath $(OBJDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C $(OBJDIR)/test/freedom-toolchain-tests SED=$(SED)
 	date > $@
 
 # Tests freedom-e-sdk.
@@ -169,16 +168,16 @@ $(OBJDIR)/stamps/freedom-e-sdk.test: \
 	mkdir -p $(OBJDIR)/test
 	cp -a $(SRC_FESDK) $(OBJDIR)/test
 	rm -rf $(OBJDIR)/test/freedom-e-sdk-standalone
-	PATH=$(abspath $(PKGDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
+	PATH=$(abspath $(OBJDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
 		$(OBJDIR)/test/freedom-e-sdk PROGRAM=hello TARGET=qemu-sifive-e31 \
 		STANDALONE_DEST=$(abspath $(OBJDIR)/test/freedom-e-sdk-standalone) standalone
-	PATH=$(abspath $(PKGDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
+	PATH=$(abspath $(OBJDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
 		$(OBJDIR)/test/freedom-e-sdk-standalone software
 	rm -rf $(OBJDIR)/test/freedom-e-sdk-standalone
-	PATH=$(abspath $(PKGDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
+	PATH=$(abspath $(OBJDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
 		$(OBJDIR)/test/freedom-e-sdk PROGRAM=example-freertos-minimal TARGET=qemu-sifive-e31 \
 		STANDALONE_DEST=$(abspath $(OBJDIR)/test/freedom-e-sdk-standalone) standalone
-	PATH=$(abspath $(PKGDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
+	PATH=$(abspath $(OBJDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
 		$(OBJDIR)/test/freedom-e-sdk-standalone software
 	date > $@
 
