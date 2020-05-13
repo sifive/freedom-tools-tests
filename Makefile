@@ -114,21 +114,25 @@ win64: win64-toolchain win64-openocd win64-qemu win64-xc3sprog win64-trace-decod
 win64-non-toolchain: win64-openocd win64-qemu win64-xc3sprog win64-trace-decoder win64-sdk-utilities
 win64-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
 win64-e-sdk: $(OBJDIR)/stamps/freedom-e-sdk.test
+win64-qemu: $(OBJDIR)/stamps/riscv-qemu-get-version.test
 .PHONY: ubuntu64 ubuntu64-non-toolchain ubuntu64-toolchain ubuntu64-gdb-only ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities ubuntu64-e-sdk
 ubuntu64: ubuntu64-toolchain ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities ubuntu64-e-sdk
 ubuntu64-non-toolchain: ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities
 ubuntu64-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
 ubuntu64-e-sdk: $(OBJDIR)/stamps/freedom-e-sdk.test
+ubuntu64-qemu: $(OBJDIR)/stamps/riscv-qemu-get-version.test
 .PHONY: redhat redhat-non-toolchain redhat-toolchain redhat-gdb-only redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities redhat-e-sdk
 redhat: redhat-toolchain redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities redhat-e-sdk
 redhat-non-toolchain: redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities
 redhat-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
 redhat-e-sdk: $(OBJDIR)/stamps/freedom-e-sdk.test
+redhat-qemu: $(OBJDIR)/stamps/riscv-qemu-get-version.test
 .PHONY: darwin darwin-non-toolchain darwin-toolchain darwin-gdb-only darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities darwin-e-sdk
 darwin: darwin-toolchain darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities darwin-e-sdk
 darwin-non-toolchain: darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities
 darwin-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
 darwin-e-sdk: $(OBJDIR)/stamps/freedom-e-sdk.test
+darwin-qemu: $(OBJDIR)/stamps/riscv-qemu-get-version.test
 
 # There's enough % rules that make starts blowing intermediate files away.
 .SECONDARY:
@@ -179,6 +183,31 @@ $(OBJDIR)/stamps/freedom-e-sdk.test: \
 		STANDALONE_DEST=$(abspath $(OBJDIR)/test/freedom-e-sdk-standalone) standalone
 	PATH=$(abspath $(OBJDIR)/install/$(toolchain_tarname)/bin):$(PATH) $(MAKE) -C \
 		$(OBJDIR)/test/freedom-e-sdk-standalone software
+	date > $@
+
+# Installs riscv-qemu.
+qemu_tarball = $(wildcard $(BINDIR)/riscv-qemu-*-$(NATIVE).tar.gz)
+ifneq ($(qemu_tarball),)
+qemu_tarname = $(basename $(basename $(notdir $(qemu_tarball))))
+
+$(OBJDIR)/stamps/riscv-qemu.install: \
+		$(qemu_tarball)
+	mkdir -p $(dir $@)
+	rm -rf $(OBJDIR)/install/$(qemu_tarname)
+	mkdir -p $(OBJDIR)/install
+	$(TAR) -xz -C $(OBJDIR)/install -f $(qemu_tarball)
+	date > $@
+else
+$(OBJDIR)/stamps/riscv-qemu.install: \
+	$(error No riscv-qemu $(NATIVE) tarball available for testing!)
+endif
+
+# Tests riscv-qemu.
+$(OBJDIR)/stamps/riscv-qemu-get-version.test: \
+		$(OBJDIR)/stamps/riscv-qemu.install
+	mkdir -p $(dir $@)
+	PATH=$(abspath $(OBJDIR)/install/$(qemu_tarname)/bin):$(PATH) qemu-system-riscv32 -version
+	PATH=$(abspath $(OBJDIR)/install/$(qemu_tarname)/bin):$(PATH) qemu-system-riscv64 -version
 	date > $@
 
 # Targets that don't build anything
