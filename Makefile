@@ -150,7 +150,7 @@ $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install: \
 	$(TAR) -xz -C $(OBJDIR)/install -f $(toolchain_tarball)
 	date > $@
 else
-$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install: \
+$(OBJDIR)/stamps/riscv64-unknown-elf-gcc.install:
 	$(error No riscv64-unknown-elf-gcc $(NATIVE) tarball available for testing!)
 endif
 
@@ -198,7 +198,7 @@ $(OBJDIR)/stamps/riscv-qemu.install: \
 	$(TAR) -xz -C $(OBJDIR)/install -f $(qemu_tarball)
 	date > $@
 else
-$(OBJDIR)/stamps/riscv-qemu.install: \
+$(OBJDIR)/stamps/riscv-qemu.install:
 	$(error No riscv-qemu $(NATIVE) tarball available for testing!)
 endif
 
