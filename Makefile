@@ -211,6 +211,6 @@ $(OBJDIR)/stamps/riscv-qemu-get-version.test: \
 	date > $@
 
 # Targets that don't build anything
-.PHONY: clean
-clean::
+.PHONY: flush
+flush::
 	rm -rf $(OBJDIR)
