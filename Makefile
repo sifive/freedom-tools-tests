@@ -1,15 +1,15 @@
 # The default target
-.PHONY: all non-toolchain toolchain gdb-only openocd qemu xc3sprog trace-decoder sdk-utilities e-sdk
+.PHONY: all non-toolchain-regress toolchain-regress gdb-only-regress openocd-regress qemu-regress xc3sprog-regress trace-decoder-regress sdk-utilities-regress e-sdk-regress
 all:
-non-toolchain:
-toolchain:
-gdb-only:
-openocd:
-qemu:
-xc3sprog:
-trace-decoder:
-sdk-utilities:
-e-sdk:
+non-toolchain-regress:
+toolchain-regress:
+gdb-only-regress:
+openocd-regress:
+qemu-regress:
+xc3sprog-regress:
+trace-decoder-regress:
+sdk-utilities-regress:
+e-sdk-regress:
 
 .NOTPARALLEL:
 export MAKEFLAGS=-j1
@@ -38,27 +38,27 @@ ifneq ($(wildcard /etc/redhat-release),)
 NATIVE ?= $(REDHAT)
 NINJA ?= ninja-build
 all: redhat
-non-toolchain: redhat-non-toolchain
-toolchain: redhat-toolchain
-gdb-only: redhat-gdb-only
-openocd: redhat-openocd
-qemu: redhat-qemu
-xc3sprog: redhat-xc3sprog
-trace-decoder: redhat-trace-decoder
-sdk-utilities: redhat-sdk-utilities
-e-sdk: redhat-e-sdk
+non-toolchain-regress: redhat-non-toolchain
+toolchain-regress: redhat-toolchain
+gdb-only-regress: redhat-gdb-only
+openocd-regress: redhat-openocd
+qemu-regress: redhat-qemu
+xc3sprog-regress: redhat-xc3sprog
+trace-decoder-regress: redhat-trace-decoder
+sdk-utilities-regress: redhat-sdk-utilities
+e-sdk-regress: redhat-e-sdk
 else ifeq ($(DISTRIB_ID),Ubuntu)
 NATIVE ?= $(UBUNTU64)
 all: ubuntu64
-non-toolchain: ubuntu64-non-toolchain
-toolchain: ubuntu64-toolchain
-gdb-only: ubuntu64-gdb-only
-openocd: ubuntu64-openocd
-qemu: ubuntu64-qemu
-xc3sprog: ubuntu64-xc3sprog
-trace-decoder: ubuntu64-trace-decoder
-sdk-utilities: ubuntu64-sdk-utilities
-e-sdk: ubuntu64-e-sdk
+non-toolchain-regress: ubuntu64-non-toolchain
+toolchain-regress: ubuntu64-toolchain
+gdb-only-regress: ubuntu64-gdb-only
+openocd-regress: ubuntu64-openocd
+qemu-regress: ubuntu64-qemu
+xc3sprog-regress: ubuntu64-xc3sprog
+trace-decoder-regress: ubuntu64-trace-decoder
+sdk-utilities-regress: ubuntu64-sdk-utilities
+e-sdk-regress: ubuntu64-e-sdk
 else ifeq ($(shell uname),Darwin)
 NATIVE ?= $(DARWIN)
 LIBTOOLIZE ?= glibtoolize
@@ -66,27 +66,27 @@ TAR ?= gtar
 SED ?= gsed
 AWK ?= gawk
 all: darwin
-non-toolchain: darwin-non-toolchain
-toolchain: darwin-toolchain
-gdb-only: darwin-gdb-only
-openocd: darwin-openocd
-qemu: darwin-qemu
-xc3sprog: darwin-xc3sprog
-trace-decoder: darwin-trace-decoder
-sdk-utilities: darwin-sdk-utilities
-e-sdk: darwin-e-sdk
+non-toolchain-regress: darwin-non-toolchain
+toolchain-regress: darwin-toolchain
+gdb-only-regress: darwin-gdb-only
+openocd-regress: darwin-openocd
+qemu-regress: darwin-qemu
+xc3sprog-regress: darwin-xc3sprog
+trace-decoder-regress: darwin-trace-decoder
+sdk-utilities-regress: darwin-sdk-utilities
+e-sdk-regress: darwin-e-sdk
 else ifneq ($(wildcard /mingw64/etc),)
 NATIVE ?= $(WIN64)
 all: win64
-non-toolchain: win64-non-toolchain
-toolchain: win64-toolchain
-gdb-only: win64-gdb-only
-openocd: win64-openocd
-qemu: win64-qemu
-xc3sprog: win64-xc3sprog
-trace-decoder: win64-trace-decoder
-sdk-utilities: win64-sdk-utilities
-e-sdk: win64-e-sdk
+non-toolchain-regress: win64-non-toolchain
+toolchain-regress: win64-toolchain
+gdb-only-regress: win64-gdb-only
+openocd-regress: win64-openocd
+qemu-regress: win64-qemu
+xc3sprog-regress: win64-xc3sprog
+trace-decoder-regress: win64-trace-decoder
+sdk-utilities-regress: win64-sdk-utilities
+e-sdk-regress: win64-e-sdk
 else
 $(error Unknown host)
 endif
@@ -211,6 +211,10 @@ $(OBJDIR)/stamps/riscv-qemu-get-version.test: \
 	date > $@
 
 # Targets that don't build anything
+.PHONY: clean
+clean::
+	rm -rf $(OBJDIR) $(BINDIR)
+
 .PHONY: flush
 flush::
 	rm -rf $(OBJDIR)
