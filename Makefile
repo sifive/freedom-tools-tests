@@ -107,30 +107,35 @@ OBJ_REDHAT   := $(OBJDIR)/$(REDHAT)
 
 SRC_FTCT     := $(SRCDIR)/freedom-toolchain-tests
 SRC_FESDK    := $(SRCDIR)/freedom-e-sdk
+SRC_TD       := $(SRCDIR)/trace-decoder-tests
 
 # The actual output of this repository is a set of test runs.
 .PHONY: win64 win64-non-toolchain win64-toolchain win64-gdb-only win64-openocd win64-qemu win64-xc3sprog win64-trace-decoder win64-sdk-utilities win64-e-sdk
 win64: win64-toolchain win64-openocd win64-qemu win64-xc3sprog win64-trace-decoder win64-sdk-utilities win64-e-sdk
 win64-non-toolchain: win64-openocd win64-qemu win64-xc3sprog win64-trace-decoder win64-sdk-utilities
 win64-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
+win64-trace-decoder: $(OBJDIR)/stamps/trace-decoder.test
 win64-e-sdk: $(OBJDIR)/stamps/freedom-e-sdk.test
 win64-qemu: $(OBJDIR)/stamps/riscv-qemu-get-version.test
 .PHONY: ubuntu64 ubuntu64-non-toolchain ubuntu64-toolchain ubuntu64-gdb-only ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities ubuntu64-e-sdk
 ubuntu64: ubuntu64-toolchain ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities ubuntu64-e-sdk
 ubuntu64-non-toolchain: ubuntu64-openocd ubuntu64-qemu ubuntu64-xc3sprog ubuntu64-trace-decoder ubuntu64-sdk-utilities
 ubuntu64-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
+ubuntu64-trace-decoder: $(OBJDIR)/stamps/trace-decoder.test
 ubuntu64-e-sdk: $(OBJDIR)/stamps/freedom-e-sdk.test
 ubuntu64-qemu: $(OBJDIR)/stamps/riscv-qemu-get-version.test
 .PHONY: redhat redhat-non-toolchain redhat-toolchain redhat-gdb-only redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities redhat-e-sdk
 redhat: redhat-toolchain redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities redhat-e-sdk
 redhat-non-toolchain: redhat-openocd redhat-qemu redhat-xc3sprog redhat-trace-decoder redhat-sdk-utilities
 redhat-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
+redhat-trace-decoder: $(OBJDIR)/stamps/trace-decoder.test
 redhat-e-sdk: $(OBJDIR)/stamps/freedom-e-sdk.test
 redhat-qemu: $(OBJDIR)/stamps/riscv-qemu-get-version.test
 .PHONY: darwin darwin-non-toolchain darwin-toolchain darwin-gdb-only darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities darwin-e-sdk
 darwin: darwin-toolchain darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities darwin-e-sdk
 darwin-non-toolchain: darwin-openocd darwin-qemu darwin-xc3sprog darwin-trace-decoder darwin-sdk-utilities
 darwin-toolchain: $(OBJDIR)/stamps/riscv64-unknown-elf-gcc.test
+darwin-trace-decoder: $(OBJDIR)/stamps/trace-decoder.test
 darwin-e-sdk: $(OBJDIR)/stamps/freedom-e-sdk.test
 darwin-qemu: $(OBJDIR)/stamps/riscv-qemu-get-version.test
 
@@ -208,6 +213,33 @@ $(OBJDIR)/stamps/riscv-qemu-get-version.test: \
 	mkdir -p $(dir $@)
 	PATH=$(abspath $(OBJDIR)/install/$(qemu_tarname)/bin):$(PATH) qemu-system-riscv32 -version
 	PATH=$(abspath $(OBJDIR)/install/$(qemu_tarname)/bin):$(PATH) qemu-system-riscv64 -version
+	date > $@
+
+# Installs trace-decoder
+trace-decoder_tarball = $(wildcard $(BINDIR)/trace-decoder-*-$(NATIVE).tar.gz)
+ifneq ($(trace-decoder_tarball),)
+trace-decoder_tarname = $(basename $(basename $(notdir $(trace-decoder_tarball))))
+
+$(OBJDIR)/stamps/trace-decoder.install: \
+		$(trace-decoder_tarball)
+	mkdir -p $(dir $@)
+	rm -rf $(OBJDIR)/install/$(trace-decoder_tarname)
+	mkdir -p $(OBJDIR)/install
+	$(TAR) -xz -C $(OBJDIR)/install -f $(trace-decoder_tarball)
+	date > $@
+else
+$(OBJDIR)/stamps/trace-decoder.install:
+	$(error No trace-decoder $(NATIVE) tarball available for testing!)
+endif
+
+# Tests trace-decoder
+$(OBJDIR)/stamps/trace-decoder.test: \
+		$(OBJDIR)/stamps/trace-decoder.install
+	mkdir -p $(dir $@)
+	rm -rf $(OBJDIR)/test/trace-decoder-tests
+	mkdir -p $(OBJDIR)/test
+	cp -a $(SRC_TD) $(OBJDIR)/test
+	PATH=$(abspath $(OBJDIR)/install/$(trace-decoder_tarname)/bin):$(PATH) $(MAKE) -C $(OBJDIR)/test/trace-decoder-tests SED=$(SED)
 	date > $@
 
 # Targets that don't build anything
