@@ -4,3 +4,6 @@
 [submodule "src/freedom-e-sdk"]
 	path = src/freedom-e-sdk
 	url = git://github.com/sifive/freedom-e-sdk.git
+[submodule "src/trace-decoder-tests"]
+	path = src/trace-decoder-tests
+	url = https://github.com/sifive/trace-decoder-tests.git
